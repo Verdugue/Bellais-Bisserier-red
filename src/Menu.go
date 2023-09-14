@@ -22,5 +22,4 @@ func (p Personnage) DetailsPerso() {
     fmt.Printf("Pv Max: %d\n", p.pv_max)
     fmt.Printf("Pv: %d\n", p.pv)
     fmt.Printf("Inventory: %v\n", p.inventory)
-)
 }
