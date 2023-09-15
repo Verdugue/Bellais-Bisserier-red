@@ -48,8 +48,11 @@ func DisplayInfo(character *Character) {
 
 func AccessInventory(character *Character) {
     for {
-        DisplayInfo(character)
-        fmt.Println("Menu de l'inventaire:")
+        fmt.Println("Inventaire du personnage:")
+        for i, item := range character.inventory {
+            fmt.Printf("%d. Nom: %s, Quantité: %d\n", i+1, item.name, item.amount)
+        }
+        fmt.Println("\nMenu de l'inventaire:")
         fmt.Println("1. Utiliser un objet")
         fmt.Println("2. Retour au menu principal")
 
@@ -61,7 +64,7 @@ func AccessInventory(character *Character) {
         case 1:
             useItem(character)
         case 2:
-            return // Sortie de la fonction pour revenir au menu principal
+            return // Retour au menu principal
         default:
             fmt.Println("Option invalide")
         }

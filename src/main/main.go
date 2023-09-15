@@ -16,6 +16,7 @@ func clearScreen() {
 func main() {
     p1 := game.Init("Alice", "Guerrier")
     for {
+		clearScreen()
         fmt.Println("Menu principal:")
         fmt.Println("1. Afficher les informations du personnage")
         fmt.Println("2. Accéder à l'inventaire")
@@ -28,6 +29,7 @@ func main() {
         switch choice {
         case 1:
             game.DisplayInfo(p1)
+			fmt.Println("")
         case 2:
             game.AccessInventory(p1)
         case 3:
