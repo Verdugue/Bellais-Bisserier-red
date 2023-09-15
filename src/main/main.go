@@ -1,18 +1,41 @@
 package main
 
-import "red"
+import (
+    "red"
+    "os"
+    "os/exec"
+	"fmt"
+)
+
+func clearScreen() {
+    cmd := exec.Command("clear") // Efface l'écran sous Unix/Linux/macOS
+    cmd.Stdout = os.Stdout
+    cmd.Run()
+}
 
 func main() {
-    // Création d'un personnage
-    joueur := Personnage{
-        Nom:        "Joueur1",
-        Classe:     "Guerrier",
-        Niveau:     1,
-        PVMaximum:  100,
-        PVActuels:  100,
-        Inventaire: []string{"Épée", "Armure légère"},
-    }
+    p1 := game.Init("Alice", "Guerrier")
+    for {
+        fmt.Println("Menu principal:")
+        fmt.Println("1. Afficher les informations du personnage")
+        fmt.Println("2. Accéder à l'inventaire")
+        fmt.Println("3. Quitter")
 
-    // Affichage des détails du personnage
-    joueur.AfficherDetails()
+        var choice int
+        fmt.Print("Choisissez une option: ")
+        fmt.Scanln(&choice)
+
+        switch choice {
+        case 1:
+            game.DisplayInfo(p1)
+        case 2:
+            game.AccessInventory(p1)
+        case 3:
+            fmt.Println("Au revoir !")
+            return
+        default:
+            fmt.Println("Option invalide")
+        }
+        clearScreen()
+    }
 }
