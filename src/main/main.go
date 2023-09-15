@@ -1,7 +1,7 @@
 package main
 
 import (
-    "red"
+    "game"
     "os"
     "os/exec"
 	"fmt"
