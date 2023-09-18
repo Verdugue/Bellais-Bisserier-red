@@ -138,7 +138,6 @@ func AccessInventory(p *Personnage) {
                     p.PointsVieActuels = p.PointsVieMax
                 }
                 fmt.Printf("Points de vie actuels : %d/%d\n", p.PointsVieActuels, p.PointsVieMax)
-                item.Quantite--
                 if item.Quantite == 0 {
                     fmt.Printf("Vous n'avez plus de %s dans votre inventaire.\n", item.Nom)
                 }
@@ -214,5 +213,14 @@ func MarchandMenu(p *Personnage) {
         default:
             fmt.Println("Choix invalide, veuillez réessayer.")
         }
+    }
+}
+
+func Dead(p *Personnage) {
+    if p.PointsVieActuels <= 0 {
+        fmt.Println("Vous êtes mort !")
+        // Ressuscitez avec 50% de vos points de vie maximum
+        p.PointsVieActuels = p.PointsVieMax / 2
+        fmt.Printf("Vous avez été ressuscité avec %d points de vie.\n", p.PointsVieActuels)
     }
 }
