@@ -138,6 +138,7 @@ func AccessInventory(p *Personnage) {
                     p.PointsVieActuels = p.PointsVieMax
                 }
                 fmt.Printf("Points de vie actuels : %d/%d\n", p.PointsVieActuels, p.PointsVieMax)
+                item.Quantite--
                 if item.Quantite == 0 {
                     fmt.Printf("Vous n'avez plus de %s dans votre inventaire.\n", item.Nom)
                 }
@@ -159,7 +160,6 @@ func UseItem(p *Personnage, itemName string) {
             // Par exemple, si l'objet est une potion de santé, vous pouvez augmenter les points de vie du personnage.
             // Ici, nous affichons simplement un message pour illustrer l'idée.
             fmt.Printf("Utilisé %s\n", itemName)
-            item.Quantite--
             return
         }
     }
