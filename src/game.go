@@ -1,387 +1,218 @@
-package game
+package gamePlay
 
 import (
-	"fmt"
-    "time"
-    "unicode"
+    "fmt"
+    "strings"
+    "os"
+    "os/exec"
+    "runtime"
 )
 
-type Character struct {
-	name      string
-	class     string
-	level     int
-	pv_max    int
-	pv        int
-    spells    []string
-	inventory []struct {
-		name   string
-		amount int
-	}
+type Personnage struct {
+    Nom            string
+    Classe         string
+    Niveau         int
+    PointsVieMax   int
+    PointsVieActuels int
+    Inventaire     []struct {
+        Nom     string
+        Quantite int
+    }
+    Skills []string // Champ pour les compétences du personnage
 }
 
-func charCreation() *Character {
-    var name string
-    var class string
 
-    // Demandez le nom de l'utilisateur
-    for {
-        fmt.Print("Choisissez votre nom (uniquement des lettres): ")
-        fmt.Scanln(&name)
-
-        // Vérifiez si le nom ne contient que des lettres
-        if isAlpha(name) {
-            break
-        } else {
-            fmt.Println("Le nom doit contenir uniquement des lettres.")
-        }
-    }
-
-    // Demandez la classe de l'utilisateur
-    for {
-        fmt.Print("Choisissez votre classe (Humain, Elfe ou Demon): ")
-        fmt.Scanln(&class)
-
-        // Vérifiez si la classe est valide
-        if class == "Humain" || class == "Elfe" || class == "Demon" {
-            break
-        } else {
-            fmt.Println("Classe invalide. Choisissez parmi Humain, Elfe ou Demon.")
-        }
-    }
-
-    // Initialisez le personnage avec les paramètres choisis par l'utilisateur
-    character := Init(name, class)
-
-    return character
-}
-
-func isAlpha(str string) bool {
-    for _, char := range str {
-        if !unicode.IsLetter(char) {
-            return false
-        }
-    }
-    return true
-}
-
-func Init(name string, class string) *Character {
-    character := &Character{
-        name:   name,
-        class:  class,
-        level:  1,
-        pv_max: 100,
-        pv:     40,
-        inventory: []struct {
-            name   string
-            amount int
+func Init(nom, classe string, niveau, pvMax, pvActuels int) *Personnage {
+    // Initialiser le personnage avec les valeurs spécifiées
+    personnage := &Personnage{
+        Nom:          nom,
+        Classe:       classe,
+        Niveau:       niveau,
+        PointsVieMax: pvMax,
+        PointsVieActuels: pvActuels,
+        Inventaire: []struct {
+            Nom     string
+            Quantite int
         }{
-            {"Potions de soin", 3},
+            {"Potion de soin", 3},
         },
-        spells: []string{"Coup de poing"}, // Initialisez la liste des sorts avec "Coup de poing"
     }
-    return character
+    return personnage
 }
 
-func DisplayInfo(character *Character) {
-	fmt.Printf("Nom: %s\n", character.name)
-	fmt.Printf("Classe: %s\n", character.class)
-	fmt.Printf("Niveau: %d\n", character.level)
-	fmt.Printf("PV maximum: %d\n", character.pv_max)
-	fmt.Printf("PV actuels: %d\n", character.pv)
-	fmt.Println("Inventaire:")
-	for _, item := range character.inventory {
-		fmt.Printf("Nom: %s, Quantité: %d\n", item.name, item.amount)
-	}
-}
+func CharCreation() *Personnage {
+    var nom string
+    var classe string
 
-func AccessInventory(character *Character) {
+    // Demander le nom de l'utilisateur et le valider
     for {
-        fmt.Println("Inventaire du personnage:")
-        for i, item := range character.inventory {
-            fmt.Printf("%d. %s (Quantité: %d)\n", i+1, item.name, item.amount)
+        fmt.Print("Choisissez un nom (uniquement des lettres) : ")
+        fmt.Scanln(&nom)
+        if isAlpha(nom) {
+            break
         }
-        fmt.Println("\nMenu de l'inventaire:")
-        fmt.Println("1. Utiliser un objet")
-        fmt.Println("2. Visiter le marchand")
-        fmt.Println("3. Retour au menu principal")
-
-        var choice int
-        fmt.Print("Choisissez une option: ")
-        fmt.Scanln(&choice)
-
-        switch choice {
-        case 1:
-            useItem(character)
-        case 2:
-            visitMerchant(character) // Visiter le marchand
-        case 3:
-            return // Retour au menu principal
-        default:
-            fmt.Println("Option invalide")
-        }
+        fmt.Println("Le nom doit contenir uniquement des lettres.")
     }
-}
 
-func accessSubInventory(character *Character) {
+    // Mettre le nom en majuscule pour la première lettre et en minuscules pour le reste
+    nom = strings.Title(strings.ToLower(nom))
+
+    // Demander la classe de l'utilisateur et initialiser les points de vie en conséquence
     for {
-        fmt.Println("\nMenu de l'inventaire:")
-        fmt.Println("1. Utiliser une Potion de soin (Revenir en arrière)") // Ajoutez "Revenir en arrière" dans l'option
-        fmt.Println("2. Retour au menu précédent")
-
-        var choice int
-        fmt.Print("Choisissez une option: ")
-        fmt.Scanln(&choice)
-
-        switch choice {
-        case 1:
-            useHealthPotion(character) // Appel d'une fonction spécifique pour utiliser une Potion de soin
-        case 2:
-            return // Retour au menu précédent
+        fmt.Print("Choisissez une classe (Humain/Elfe/Nain) : ")
+        fmt.Scanln(&classe)
+        switch classe {
+        case "Humain":
+            return Init(nom, classe, 1, 100, 40)
+        case "Elfe":
+            return Init(nom, classe, 1, 80, 40)
+        case "Nain":
+            return Init(nom, classe, 1, 120, 60)
         default:
-            fmt.Println("Option invalide")
+            fmt.Println("Classe invalide, veuillez choisir parmi Humain, Elfe ou Nain.")
         }
     }
 }
 
-func useHealthPotion(character *Character) {
-    // Ajoutez ici la logique pour utiliser une Potion de soin
-    fmt.Println("Vous avez utilisé une Potion de soin.")
-    // N'oubliez pas de mettre à jour la quantité de Potions de soin dans l'inventaire
-}
-
-func onlyContainsHealthPotions(character *Character) bool {
-    for _, item := range character.inventory {
-        if item.name != "Potions de soin" {
+func isAlpha(s string) bool {
+    for _, char := range s {
+        if !((char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z')) {
             return false
         }
     }
     return true
 }
 
-func useItem(character *Character) {
+func DisplayInfo(p *Personnage) {
+    fmt.Println("\nInformations du personnage :")
+    fmt.Println("Nom:", p.Nom)
+    fmt.Println("Classe:", p.Classe)
+    fmt.Println("Niveau:", p.Niveau)
+    fmt.Println("Points de vie maximum:", p.PointsVieMax)
+    fmt.Println("Points de vie actuels:", p.PointsVieActuels)
+    fmt.Println("Inventaire:")
+    for _, item := range p.Inventaire {
+        fmt.Printf("%s x%d\n", item.Nom, item.Quantite)
+    }
+    fmt.Println("Compétences:")
+    for _, skill := range p.Skills {
+        fmt.Println(skill)
+    }
+}
+
+func ClearConsole() {
+    if runtime.GOOS == "windows" {
+        cmd := exec.Command("cmd", "/c", "cls")
+        cmd.Stdout = os.Stdout
+        cmd.Run()
+    } else {
+        cmd := exec.Command("clear")
+        cmd.Stdout = os.Stdout
+        cmd.Run()
+    }
+}
+
+func AccessInventory(p *Personnage) {
     for {
-        fmt.Println("Menu de l'inventaire:")
-        fmt.Println("1. Utiliser un objet")
-        fmt.Println("2. Revenir en arrière")
+        fmt.Println("\nInventaire du personnage :")
+        for i, item := range p.Inventaire {
+            fmt.Printf("%d. %s x%d\n", i+1, item.Nom, item.Quantite)
+        }
+        fmt.Println("0. Quitter")
 
-        var choice int
-        fmt.Print("Choisissez une option: ")
-        fmt.Scanln(&choice)
+        var choix int
+        fmt.Print("Votre choix : ")
+        fmt.Scanln(&choix)
 
-        switch choice {
+        if choix == 0 {
+            // Quitter le sous-menu
+            break
+        } else if choix > 0 && choix <= len(p.Inventaire) {
+            item := &p.Inventaire[choix-1]
+            if item.Quantite > 0 {
+                fmt.Printf("Vous avez choisi d'utiliser %s.\n", item.Nom)
+                // Ajouter ici la logique pour utiliser l'objet (par exemple, utiliser une potion de santé)
+                UseItem(p, item.Nom)
+                p.PointsVieActuels += 50
+                if p.PointsVieActuels > p.PointsVieMax {
+                    p.PointsVieActuels = p.PointsVieMax
+                }
+                fmt.Printf("Points de vie actuels : %d/%d\n", p.PointsVieActuels, p.PointsVieMax)
+                if item.Quantite == 0 {
+                    fmt.Printf("Vous n'avez plus de %s dans votre inventaire.\n", item.Nom)
+                }
+            } else {
+                fmt.Printf("Vous n'avez plus de %s dans votre inventaire.\n", item.Nom)
+            }
+        } else {
+            fmt.Println("Choix invalide, veuillez réessayer.")
+        }
+    }
+}
+
+
+
+func UseItem(p *Personnage, itemName string) {
+    for _, item := range p.Inventaire {
+        if item.Nom == itemName {
+            // Vous pouvez ajouter ici la logique pour utiliser l'objet
+            // Par exemple, si l'objet est une potion de santé, vous pouvez augmenter les points de vie du personnage.
+            // Ici, nous affichons simplement un message pour illustrer l'idée.
+            fmt.Printf("Utilisé %s\n", itemName)
+            item.Quantite--
+            return
+        }
+    }
+    fmt.Printf("%s n'est pas dans votre inventaire.\n", itemName)
+}
+
+func TakePot(p *Personnage) {
+    // Parcourir l'inventaire pour trouver une potion de santé
+    for _, item := range p.Inventaire {
+        if item.Nom == "Potion de soin" {
+            if p.PointsVieActuels == p.PointsVieMax {
+                fmt.Println("Vos points de vie sont déjà au maximum, vous ne pouvez pas utiliser la potion.")
+            } else {
+                p.PointsVieActuels += 50
+                if p.PointsVieActuels > p.PointsVieMax {
+                    p.PointsVieActuels = p.PointsVieMax
+                }
+                fmt.Println("Vous avez utilisé une potion de soin et récupéré 50 points de vie.")
+            }
+            return
+        }
+    }
+    fmt.Println("Vous n'avez pas de potion de soin dans votre inventaire.")
+}
+
+func MarchandMenu(p *Personnage) {
+    potionsSoin := 1 // Nombre initial de potions de soin disponibles chez le marchand
+
+    for {
+        fmt.Println("Menu du marchand :")
+        fmt.Println("1. Potion de soin (Gratuite)")
+        fmt.Println("0. Quitter")
+
+        var choix int
+        fmt.Print("Votre choix : ")
+        fmt.Scanln(&choix)
+
+        switch choix {
         case 1:
-            fmt.Println("Choisissez un objet à utiliser (1, 2, etc.):")
-            for i, item := range character.inventory {
-                fmt.Printf("%d. %s (Quantité: %d)\n", i+1, item.name, item.amount)
-            }
-
-            var itemIndex int
-            fmt.Scanln(&itemIndex)
-
-            if itemIndex >= 1 && itemIndex <= len(character.inventory) {
-                item := &character.inventory[itemIndex-1]
-                switch item.name {
-                case "Potions de soin":
-                    if item.amount > 0 {
-                        takePot(character)
-                        item.amount-- // Retire une potion de l'inventaire
-                        fmt.Println("Vous avez utilisé une Potion de soin.")
-                        fmt.Printf("Vous avez reçu 50 points de vie. PV actuels : %d\n", character.pv)
-                    } else {
-                        fmt.Println("Vous n'avez pas de Potion de soin.")
-                    }
-                case "Potion de poison":
-                    if item.amount > 0 {
-                        poisonPot(character) // Applique les dégâts de poison
-                        removeInventory(character, "Potion de poison", 1) // Retire la Potion de poison de l'inventaire
-                        fmt.Println("Vous avez utilisé une Potion de poison.")
-                        fmt.Printf("Vous avez subi des dégâts de poison. PV actuels : %d\n", character.pv)
-                    } else {
-                        fmt.Println("Vous n'avez pas de Potion de poison.")
-                    }
-                default:
-                    fmt.Println("Impossible d'utiliser cet objet.")
-                }
+            if potionsSoin > 0 {
+                // Ajouter une potion de soin à l'inventaire du personnage
+                p.Inventaire = append(p.Inventaire, struct{ Nom string; Quantite int }{"Potion de soin", 1})
+                fmt.Println("Vous avez acheté une Potion de soin.")
+                // Réduire le nombre de potions de soin disponibles chez le marchand
+                potionsSoin--
             } else {
-                fmt.Println("Option invalide")
+                fmt.Println("Le marchand n'a plus de potions de soin en stock.")
             }
-        case 2:
-            return // Revenir en arrière
+        case 0:
+            fmt.Println("Vous quittez le menu du marchand.")
+            return
         default:
-            fmt.Println("Option invalide")
+            fmt.Println("Choix invalide, veuillez réessayer.")
         }
     }
-}
-
-
-
-func takePot(character *Character) {
-    if character.pv < character.pv_max {
-        beforeHeal := character.pv
-        if character.pv+50 <= character.pv_max {
-            character.pv += 50
-        } else {
-            character.pv = character.pv_max
-        }
-        afterHeal := character.pv
-        healed := afterHeal - beforeHeal
-        fmt.Printf("Vous avez utilisé une Potion de soin et récupéré %d HP.\n", healed)
-        fmt.Printf("PV actuels: %d / PV max: %d\n", character.pv, character.pv_max)
-    } else {
-        fmt.Println("Impossible d'utiliser la potion car les PV sont au maximum.")
-    }
-}
-
-func visitMerchant(character *Character) {
-    fmt.Println("Bienvenue chez le marchand!")
-    fmt.Println("Que souhaitez-vous acheter?")
-    
-    // Ajouter l'option de Potion de vie uniquement si l'inventaire contient autre chose que des Potions de soin
-    if !onlyContainsHealthPotions(character) {
-        fmt.Println("1. Potion de vie (gratuite)")
-    }
-
-    // Ajouter l'option de Potion de poison
-    fmt.Println("2. Potion de poison")
-
-    // Ajouter l'option de "Livre de Sort : Boule de Feu"
-    fmt.Println("3. Livre de Sort : Boule de Feu")
-
-    fmt.Println("4. Retour")
-
-    var choice int
-    fmt.Print("Choisissez une option: ")
-    fmt.Scanln(&choice)
-
-    switch choice {
-    case 1:
-        if !onlyContainsHealthPotions(character) {
-            buyItem(character, "Potion de vie", 1)
-        }
-    case 2:
-        buyItem(character, "Potion de poison", 1) // Ajout de la Potion de poison à l'inventaire
-    case 3:
-        spellBook(character) // Appel de la fonction spellBook lorsque le joueur achète le livre de sort
-    case 4:
-        return // Retour au menu de l'inventaire
-    default:
-        fmt.Println("Option invalide")
-    }
-}
-
-
-
-func buyItem(character *Character, itemToBuy string, amountToBuy int) {
-    switch itemToBuy {
-    case "Potion de vie":
-        if amountToBuy > 0 {
-            addInventory(character, "Potions de soin", amountToBuy)
-            fmt.Printf("Vous avez acheté %d %s.\n", amountToBuy, itemToBuy)
-            fmt.Printf("Vous avez reçu %d Potions de soin.\n", amountToBuy)
-        } else {
-            fmt.Println("Le marchand ne vend pas cet objet.")
-        }
-    case "Potion de poison":
-        if amountToBuy > 0 {
-            addInventory(character, "Potion de poison", amountToBuy)
-            fmt.Printf("Vous avez acheté %d %s.\n", amountToBuy, itemToBuy)
-            fmt.Printf("Vous avez reçu %d Potions de poison.\n", amountToBuy)
-        } else {
-            fmt.Println("Le marchand ne vend pas cet objet.")
-        }
-    case "Livre de Sort : Boule de Feu":
-        if amountToBuy > 0 {
-            spellBook(character, "Boule de Feu")
-            fmt.Printf("Vous avez acheté le %s.\n", itemToBuy)
-            fmt.Printf("Vous avez appris le sort : %s.\n", "Boule de Feu")
-        } else {
-            fmt.Println("Le marchand ne vend pas cet objet.")
-        }
-    default:
-        fmt.Println("Le marchand ne vend pas cet objet.")
-    }
-}
-
-
-
-func addInventory(character *Character, itemToAdd string, amountToAdd int) {
-    for i, item := range character.inventory {
-        if item.name == itemToAdd {
-            character.inventory[i].amount += amountToAdd
-            return
-        }
-    }
-    // Si l'objet n'est pas déjà dans l'inventaire, ajoutez-le
-    character.inventory = append(character.inventory, struct{ name string; amount int }{itemToAdd, amountToAdd})
-}
-
-// Fonction pour retirer un objet de l'inventaire
-func removeInventory(character *Character, itemToRemove string, amountToRemove int) {
-    for i, item := range character.inventory {
-        if item.name == itemToRemove {
-            if item.amount >= amountToRemove {
-                character.inventory[i].amount -= amountToRemove
-                if character.inventory[i].amount == 0 {
-                    // Supprime l'objet de l'inventaire si la quantité atteint 0
-                    character.inventory = append(character.inventory[:i], character.inventory[i+1:]...)
-                }
-                return
-            } else {
-                fmt.Println("Vous n'avez pas assez de cet objet dans l'inventaire.")
-                return
-            }
-        }
-    }
-    fmt.Println("Cet objet n'est pas dans votre inventaire.")
-}
-
-func dead(character *Character) {
-    if character.pv <= 0 {
-        fmt.Println("Vous êtes mort !")
-        // Réinitialise les points de vie à 50% du maximum
-        character.pv = character.pv_max / 2
-    }
-}
-
-func poisonPot(character *Character) {
-    duration := 3 // Durée en secondes
-    damagePerSecond := 10
-
-    fmt.Printf("Vous avez été empoisonné pendant %d secondes!\n", duration)
-    for i := 0; i < duration; i++ {
-        character.pv -= damagePerSecond
-        fmt.Printf("PV actuels: %d / PV max: %d\n", character.pv, character.pv_max)
-        time.Sleep(1 * time.Second) // Pause d'une seconde entre chaque tick de poison
-        dead(character) // Vérifiez si le personnage est mort à chaque tick
-    }
-}
-
-func spellBook(character *Character, spellName string) {
-    // Vérifiez si le sort est déjà dans la liste des sorts
-    for _, spell := range character.spells {
-        if spell == spellName {
-            fmt.Println("Vous avez déjà appris ce sort.")
-            return
-        }
-    }
-
-    // Ajoutez le sort à la liste des sorts
-    character.spells = append(character.spells, spellName)
-    fmt.Printf("Vous avez appris le sort : %s\n", spellName)
-}
-
-func useSpell(character *Character, spellName string) {
-    if spellName == "Coup de poing" {
-        fmt.Println("Vous avez utilisé Coup de poing.")
-    } else if spellName == "Boule de feu" {
-        fmt.Println("Vous avez utilisé la compétence : Boule de feu.")
-    } else {
-        fmt.Println("Sort inconnu.")
-    }
-}
-
-func useFireballSpell(character *Character) {
-    // Ajoutez ici la logique pour utiliser la compétence "Boule de feu"
-    fmt.Println("Vous avez utilisé la compétence : Boule de feu.")
-    // Vous pouvez ajouter ici le code pour infliger des dégâts à une cible si nécessaire
 }
