@@ -1,0 +1,154 @@
+package gamePlay
+
+func MarchandMenu(p *Personnage) {
+	potionsSoin := 1 // Nombre initial de potions de soin disponibles chez le marchand
+	potionsPoison := 1 // Le "Livre de Sort : Boule de Feu" est disponible
+    bouledeFeu := 1
+	plumedecorbeau := 1
+	cuirdesanglier := 2
+	fourruredeloup := 3
+	preaudetroll := 1
+
+
+	for {
+		fmt.Println("Menu du marchand :")
+		fmt.Println("1. Potion de soin (Gratuite)")
+		fmt.Println("2. Potion de poison (10 pièces d'or)")
+		fmt.Println("3. Plume de Corbeau par Lot (3 pièces d'or)")
+		fmt.Println("4. Cuir de Sanglier par Lot (9 pièces d'or)")
+		fmt.Println("5. Peau de Troll par lot (21 pièces d'or)")
+		fmt.Println("6. Peau de Troll par Lot (12 pièces d'or)")
+		fmt.Println("0. Quitter")
+        if BouledeFeu > 0 {
+			fmt.Println("3. Livre de Sort : Boule de Feu (10 pièces d'or)") // Ajoutez l'option d'achat du livre de sort
+		} else {
+			fmt.Println("3. Livre de Sort : Boule de Feu (épuisé)")
+		}
+		fmt.Println("0. Quitter")
+
+		var choix int
+		fmt.Print("Votre choix : ")
+		fmt.Scanln(&choix)
+
+		switch choix {
+		case 1:
+			if potionsSoin > 0 && len(p.Inventaire()) < 10 {
+				// Ajouter une potion de soin à l'inventaire du personnage
+				p.Inventaire = append(p.Inventaire, struct {
+					Nom      string
+					Quantite int
+				}{"Potion de soin", 1})
+				fmt.Println("Vous avez acheté une Potion de soin.")
+				// Réduire le nombre de potions de soin disponibles chez le marchand
+				potionsSoin--
+			} else {
+                if len(p.Inventaire()) = 10 {
+                    fmt.Println("Vous n'avez plus de place")
+                }
+                if potionsSoin > 0 {
+				fmt.Println("Le marchand n'a plus de potions de soin en stock.")
+                }
+			}
+
+		case 2:
+			if potionsPoison > 0 && len(p.Inventaire()) < 10  {
+				p.Inventaire = append(p.Inventaire, struct {
+					Nom      string
+					Quantite int
+				}{"Potion de Poison", 1})
+				fmt.Println("Vous avez acheté une Potion de Poison.")
+				potionsPoison--
+			} else {
+				fmt.Println("Le marchand n'a plus de potions de soin en stock.")
+			}
+
+		case 3:
+			// Vérifier si le "Livre de Sort : Boule de Feu" est disponible
+			if BouledeFeu > 0 && len(p.Inventaire()) < 10 {
+                p.Inventaire = append(p.Inventaire, struct{
+                    Nom      string
+                    Quantite int
+                }{"Boule de feu", 1})
+                fmt.Println("Vous venez d'apprendre le sort : Boule de feu")
+                BouledeFeu--
+            } else {
+                    fmt.Println("Vous avez déjà appris le sort : Boule de feu")
+            }
+
+		case 4:
+			if plumedecorbeau > 0 && len(p.Inventaire()) < 10 {
+				p.Inventaire = append(p.Inventaire, struct{
+					Nom			string
+					Quantite    int
+				}{"Plume de Corbeau", 1}
+				fmt.Println("Vous venez d'acheter une Plume de Corbeau")
+                plumedecorbeau--
+				} else {
+					if len(p.Inventaire()) = 10 {
+						fmt.Println("Vous n'avez plus de place")
+					}
+					if plumedecorbeau = 0 {
+					fmt.Println("Le marchand n'a plus de plume de corbeau en stock.")
+					}
+				}
+
+		case 5:
+			if cuirdesanglier > 0 && len(p.Inventaire()) < 10 {
+				p.Inventaire = append(p.Inventaire, struct{
+					Nom			string
+					Quantite    int
+				}{"cuir de sanglier", 1}
+				fmt.Println("Vous venez d'acheter un cuir de sanglier")
+                cuirdesanglier--
+			} else {
+				if len(p.Inventaire()) = 10 {
+					fmt.Println("Vous n'avez plus de place")
+				}
+				if cuirdesanglier > 0 {
+					fmt.Println("Le marchand n'a plus de cuir de sanglier en stock.")
+				}
+			}
+
+		case 6:
+			if fourruredeloup > 0 && len(p.Inventaire()) < 10 {
+				p.Inventaire = append(p.Inventaire, struct{
+					Nom			string
+					Quantite    int
+				}{"Fourrure de Loup", 1}
+				fmt.Println("Vous venez d'acheter une fourrure de loup")
+                fourruredeloup--
+			} else {
+				if len(p.Inventaire()) = 10 {
+					fmt.Println("Vous n'avez plus de place")
+				}
+				if fourruredeloup > 0 {
+					fmt.Println("Le marchand n'a plus de forrure de loup en stock.")
+				}
+			}
+
+			
+		case 7:
+			if preaudetroll > 0 && len(p.Inventaire()) < 10 {
+				p.Inventaire = append(p.Inventaire, struct{
+					Nom			string
+					Quantite    int
+				}{"Peau de Troll", 1}
+				fmt.Println("Vous venez d'acheter une Peau de troll")
+                peaudetroll--
+			} else {
+				if len(p.Inventaire()) = 10 {
+					fmt.Println("Vous n'avez plus de place")
+				}
+				if preaudetroll > 0 {
+					fmt.Println("Le marchand n'a plus de peau de troll en stock.")
+				}
+			}
+		
+		case 0:
+			fmt.Println("Vous quittez le menu du marchand.")
+			return
+		default:
+			fmt.Println("Choix invalide, veuillez réessayer.")
+		}
+	}
+}
