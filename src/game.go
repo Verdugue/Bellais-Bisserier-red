@@ -22,47 +22,14 @@ type Personnage struct {
 	Equipement       Equipement
 	Monstre          Monstre
 	Initiative       int
+	Xp               int
+	Mana             int
 }
 
-type Monstre struct {
-	Nom         string
-	PvMaximum   int
-	PvActuel    int
-	PointAttact int
-	Initiative  int
-}
-
-var (
-	Gobelin = Monstre{
-		Nom:         "Gobelin d'entrainement",
-		PvMaximum:   40,
-		PvActuel:    40,
-		PointAttact: 5,
-		Initiative:  rand.Intn(10) + 1, // Initiative aléatoire entre 1 et 10(
+func LevelUp(p *Personnage) {
+	if p.Xp == 10 {
+		p.Niveau += 1
 	}
-	Orc = Monstre{
-		Nom:         "Orc",
-		PvMaximum:   50,
-		PvActuel:    50,
-		PointAttact: 8,
-		Initiative:  rand.Intn(10) + 1, // Initiative aléatoire entre 1 et 10Dragon = Monstre
-	}
-	Dragon = Monstre{
-		Nom:         "Dragon",
-		PvMaximum:   100,
-		PvActuel:    100,
-		PointAttact: 15,
-		Initiative:  rand.Intn(10) + 1, // Initiative aléatoire entre 1 et 10
-	}
-)
-
-type Equipement struct {
-	Head      string
-	Body      string
-	Shoe      string
-	HeadBonus int
-	BodyBonus int
-	ShoeBonus int
 }
 
 func Init(nom string, classe string, niveau int, pvMax int, pvActuels int, stuff Equipement) *Personnage {
@@ -75,11 +42,13 @@ func Init(nom string, classe string, niveau int, pvMax int, pvActuels int, stuff
 		PointsVieActuels: pvActuels,
 		Argent:           100,
 		Inventaire: map[string]int{
-			"Potion de soin":   6,
+			"Potion de soin":   3,
 			"Potion de Poison": 3,
 		},
-		Initiative: 6,
+		Initiative: rand.Intn(10) + 1,
+		Xp:         0,
 		Skills:     []string{"Coup de poing"}, // Ajoutez le sort de base "Coup de poing"
+		Mana:       100,
 
 		Equipement: Equipement{
 			Head:      stuff.Head,
@@ -88,9 +57,63 @@ func Init(nom string, classe string, niveau int, pvMax int, pvActuels int, stuff
 			HeadBonus: stuff.HeadBonus, // Utilisez les noms corrects de la structure Equipement
 			BodyBonus: stuff.BodyBonus,
 			ShoeBonus: stuff.ShoeBonus,
+			HeadDura:  stuff.HeadDura,
+			BodyDura:  stuff.BodyDura,
+			ShoeDura:  stuff.ShoeDura,
 		},
 	}
 	return Personnage
+}
+
+type Monstre struct {
+	Nom         string
+	PvMaximum   int
+	PvActuel    int
+	PointAttact int
+	Initiative  int
+	Xp          int
+}
+
+var (
+	Gobelin = Monstre{
+		Nom:         "Gobelin d'entrainement",
+		PvMaximum:   40,
+		PvActuel:    40,
+		PointAttact: 5,
+		Initiative:  rand.Intn(10) + 1, // Initiative aléatoire entre 1 et 10
+		Xp:          rand.Intn(5) + 1,
+	}
+	Orc = Monstre{
+		Nom:         "Orc",
+		PvMaximum:   50,
+		PvActuel:    50,
+		PointAttact: 8,
+		Initiative:  rand.Intn(10) + 1, // Initiative aléatoire entre 1 et 10Dragon = Monstre
+		Xp:          rand.Intn(10) + 1,
+	}
+	Dragon = Monstre{
+		Nom:         "Dragon",
+		PvMaximum:   100,
+		PvActuel:    100,
+		PointAttact: 15,
+		Initiative:  rand.Intn(10) + 1, // Initiative aléatoire entre 1 et 10
+		Xp:          rand.Intn(20) + 1,
+	}
+)
+
+type Equipement struct {
+	Head      string
+	Body      string
+	Shoe      string
+	HeadBonus int
+	BodyBonus int
+	ShoeBonus int
+	HeadDura  int
+	BodyDura  int
+	ShoeDura  int
+	HeadMax   int
+	BodyMax   int
+	ShoeMax   int
 }
 
 func CharCreation() *Personnage {
@@ -101,6 +124,12 @@ func CharCreation() *Personnage {
 		HeadBonus: 0,
 		BodyBonus: 0,
 		ShoeBonus: 0,
+		HeadDura:  0,
+		BodyDura:  0,
+		ShoeDura:  0,
+		HeadMax:   100,
+		BodyMax:   100,
+		ShoeMax:   100,
 	}
 
 	var nom string
@@ -176,6 +205,7 @@ func DisplayInfo(p *Personnage) {
 	fmt.Println("Points de vie actuels:", p.PointsVieActuels)
 	fmt.Println("Inventaire: Vous avez maintenant\n", limit, "place dans votre inventaire.")
 	fmt.Println("Equipement:", p.Equipement.Head, p.Equipement.Body, p.Equipement.Shoe)
+	fmt.Printf("\nVotre Xp%d", p.Xp)
 }
 
 func ClearConsole() {
@@ -190,32 +220,12 @@ func ClearConsole() {
 	}
 }
 
-func AccessInventory(p *Personnage) {
-	for {
-		var index int
-		fmt.Println("\nInventaire du personnage :")
-		fmt.Println("Votre choix : ")
-		for key, value := range p.Inventaire {
-			index++
-			fmt.Printf("%d. %s: %d\n", index, key, value)
-		}
-		fmt.Println("0. Quitter")
-
-		var pepe int
-		fmt.Scanln(&pepe)
-		switch pepe {
-		case 1:
-			TakePot(p)
-		case 2:
-			PoisonPot(p, &p.Monstre)
-		case 3:
-			Equipe(p)
-		case 0:
-			fmt.Println("Vous quittez l'inventaire.")
-			return
-		default:
-			fmt.Println("Choix invalide, veuillez réessayer.")
-		}
+func ManaPot(p *Personnage) {
+	if !(p.Mana >= 100 && p.Inventaire["Potion de Mana"] > 0) {
+		p.Mana += 50
+		fmt.Printf("\nVous avez gagné 50 mana")
+	} else {
+		fmt.Println("")
 	}
 }
 
@@ -241,49 +251,6 @@ func TakePot(p *Personnage) {
 	fmt.Println("Vous n'avez plus de Potion de soin dans votre inventaire.") // Trouver une potion de soin dans l'inventaire
 }
 
-func (p *Personnage) Dead() {
-	if p.PointsVieActuels <= 0 {
-		fmt.Println("Vous êtes mort !")
-		// Ressuscitez avec 50% de vos points de vie maximum
-		p.PointsVieActuels = p.PointsVieMax / 2
-		fmt.Printf("Vous avez été ressuscité avec %d points de vie.\n", p.PointsVieActuels)
-	}
-}
-
-var limit int
-
-func (p *Personnage) RemoveInventory(item string) {
-	if p.Inventaire[item] > 0 {
-		p.Inventaire[item]--
-		fmt.Println("Vous avez retiré 1", item, "de votre inventaire.")
-	} else {
-		fmt.Println("Vous n'avez pas de", item, "de votre inventaire.")
-	}
-}
-
-func (p *Personnage) AddToInventory(item string) {
-	if !p.CheckInventoryLimit() {
-		p.Inventaire[item]++
-		fmt.Println("Vous venez d'acheter une", item)
-	} else {
-		fmt.Println("Vous avez atteint la limite de votre inventaire.")
-	}
-}
-
-func (p *Personnage) CheckInventoryLimit() bool {
-	limit = 10
-	nbItem := 0
-	for _, item := range p.Inventaire {
-		fmt.Println(item)
-		nbItem += item
-	}
-	return nbItem >= limit
-}
-
-func UpgradeInventorySlot(p *Personnage) {
-	fmt.Println("Vous avez maintenant \n", limit, "place dans votre inventaire.")
-}
-
 func PoisonPot(p *Personnage, m *Monstre) {
 	duration := 3 // Durée en secondes de l'empoisonnement
 	damagePerSecond := 10
@@ -302,53 +269,108 @@ func PoisonPot(p *Personnage, m *Monstre) {
 	fmt.Println("L'effet empoisonnement s'est dissipé.")
 }
 
-func CoupDePoing(p *Personnage, m *Monstre) {
-	m.PvActuel -= 8
+func (p *Personnage) Dead() {
+	if p.PointsVieActuels <= 0 {
+		fmt.Println("Vous êtes mort !")
+		// Ressuscitez avec 50% de vos points de vie maximum
+		p.PointsVieActuels = p.PointsVieMax / 2
+		fmt.Printf("Vous avez été ressuscité avec %d points de vie.\n", p.PointsVieActuels)
+	}
 }
 
-func BouleDeFeu(p *Personnage, m *Monstre) {
-	m.PvActuel -= 18
-}
+func Qui() {
+	var quiqui int
+	fmt.Println("\n1. Personnalité 1.")
+	fmt.Println("\n2. Personnalité 2.")
+	fmt.Println("\n3. Personnalité 3.")
+	fmt.Println("\n0. Quitter.")
+	fmt.Scanln(&quiqui)
 
-func AttaquePersonnage(p *Personnage, m *Monstre) {
-	var Atak int
-	fmt.Println("\nMenu d'attaque:")
-	fmt.Println("1. Coup de poing")
-	fmt.Println("2. Boule de Feu")
-	fmt.Print("Votre choix : ")
-	fmt.Scanln(&Atak)
-
-	switch Atak {
+	switch quiqui {
 	case 1:
-		CoupDePoing(p, m)
+		fmt.Println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+		fmt.Println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+		fmt.Println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+		fmt.Println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+		fmt.Println("@@@@@@@@@@@@@@@@@@@@@@   A   B   B   A  @@@@@@@@@@@@@@@@@@@@@@@@@@#==**=@@@@")
+		fmt.Println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#***=*++++:*@@@@")
+		fmt.Println("@@@#*:--:-::=@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#=++**=##=*=*")
+		fmt.Println("@@@@@*:::::+***+:+@@@@@@@@@*+++=#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#=++**=##=*=*+:*@@")
+		fmt.Println("@@@#+*==##=*****++@@@@@@#*+*#===*=@@@@@@@@@@*--::::=@@@@@@@@@==+++++*******+:#@")
+		fmt.Println("@@@++==*=====*+++++#@@@#=@@@@##====@@@@@@@@-.:*+*::::*@@@@@@@##+*=+:+*+::=**++@")
+		fmt.Println("@@#+*===@=***+++*#@@#@@*:::::+::#@=#@@#-*+:++:::::::-#@@@@@#=+++++++:::*=*=+#")
+		fmt.Println("@@*:*#*+*+:++:++=**#@@##@#+*+:+**#@==@@@@*-::+::::+----@@@@@@@#+++**++::**##=*+")
+		fmt.Println("@@*++=*::+::++:+***#@@#@@*:::::+::#@=#@@#-*+:++:::::::-+#@@@@@#=**++::+***#@===")
+		fmt.Println("@@#++*=:::::+*++#==#@#@@@#::::::::@@#=#@=-=*::+:::::*+-:#@@@@==##=+++=#*-==@=*+")
+		fmt.Println("@@=+=*=#::::+++#@@@@####@@+::::::*@@#=@@@-+*::*++:::*:--=@@@@@@#@*:=*-:=##@@@#-")
+		fmt.Println("@@=*###=::+++++##@@@###@@@=:::::=@@###@@#-:*+::::::*::::+@@@@@#:-:*#@==###=####")
+		fmt.Println(":-:#@@@*:::::::*:+++#@@@###*=+++*###@@@W*-:+*++:+=#=+++:-=@@@@#=#*--.#==##@@##@")
+		fmt.Println("-:::@@##==**+***==*=+==***=#=*:++*+*@@@@:-:+=*===@#*+++::+@@@@=@+--.+====##=#=#")
+		fmt.Println("---:+=====***#@@#=#++++++++#=*::::::::*=-:+*#:+*#*++++++::#@@=@+-+-+***===##=**")
+		fmt.Println(":::::+**====####=+:::::::::*==*:::+::+:--:+=+++**+::-:+:+++###+::-+=*=====#=+=*")
+		fmt.Println("::::-:=***==#@#+:::::::::::+**::::++:*+::+=+++***:--::-::++==*:+++======***++=*")
+		fmt.Println("@@+---+=*====:::::::++=*::++++::+:++++*+*=+:+**=*+::::::-:+*=*+++#***==+::*++=*")
+		fmt.Println("#*----+#==+:::::::++*+*=++**=*:**++*==*=#:++**::***+:::::::=#***#=****=++++*+=*")
+		fmt.Println("=:----*#*::::::::*@@@==++++++::+::+#@@@#=*++*+******+::::::=#=*=#=******+++++==")
+		fmt.Println("+:---:*::::::++**#@@@#=+::::***==+=#@@#**+:+:--:::+=++:::::*@####@#=*+*====*+=#")
+		fmt.Println("=:----:::-::++++*#@@@@=**:+*===**++=@@****===**++++=#++::::+=@#**==**+*==#===#@")
 	case 2:
-		BouleDeFeu(p, m)
+		fmt.Println("::::::::::::::::::::::::::::::::::::::::")
+		fmt.Println("::::::::::  SPILBERG  ::::::::::::::::::")
+		fmt.Println(":::::::::::::::::::+++::::::::::::::::::")
+		fmt.Println(":::::::::::::+++++++*****+::::::::::::::")
+		fmt.Println(":::::::::::******+:::::::+*+++::::::::::")
+		fmt.Println("::::::::::****+::::::::::++*++::::::::::")
+		fmt.Println(":::::::::++++:::::--::::+++**++:::::::::")
+		fmt.Println(":::::::::+++++::::::::::++***+::::::::::")
+		fmt.Println(":::::::::+**++:+++:::+++*+**++::::::::::")
+		fmt.Println(":::::::::+++*#=*==#=##=#==@=*=*:::::::::")
+		fmt.Println(":::::::::::++++:::*:+=++++*=*=::::::::::")
+		fmt.Println("::::::::::++*++:+*+::***++****::::::::::")
+		fmt.Println(":::::::::::+*+++::*==#*+*****:::::::::::")
+		fmt.Println(":::::::::::::++++++***==*++*##+:::::::::")
+		fmt.Println(":::::::::::::+++:::::+++++=#@#=+::::::::")
+		fmt.Println("::::::::::::+*#*+:::+++**=@@###==++++:::")
+		fmt.Println(":::::::::::*#@@*=****==#W@@##==###=*++++")
+		fmt.Println(":::::::::+#@@@@=**==*#@@@@##=###@##====*")
+		fmt.Println("::::::::*@@@@##:+**=@@@#@##=###@#######=")
+		fmt.Println("::::::+#@@#@W##-.-@W@##@##=###@@######@@")
+		fmt.Println(":::::*#@#==#@##@*@@######=###@@#@####@@#")
+		fmt.Println("::::=##@===@####@@===###==###@@#@#######")
+		fmt.Println(":::+##@====@######=#####=###########=##@")
 	case 3:
-		PoisonPot(p, m)
-	default:
-		fmt.Println("Attaque invalide.")
-	}
-}
+		fmt.Println("@@@@@@@@@@@@@@@@@@@@@#####=#################################################=**")
+		fmt.Println("@@@@@@@@@@@@@@@@@@###@@#@@@@@###############==============#####################")
+		fmt.Println("@@@        QUEEN         @@@@@@@######================================#########")
+		fmt.Println("@@@@@@@@@@@@@@@@@#@@@@@WW@@@@@W@@@#======================================###==#")
+		fmt.Println("@@@@@@@@@@@@@@@@W@@@WW@WW@@@@WWWWW@@==========*===####@@######==================")
+		fmt.Println("@@@@@@@@@@@@@@@@@@@@@@#@=++#@@WWWW@@=========*===#@@@@#@@@@##@##================")
+		fmt.Println("@@@@@@@@@@@@@@@WWW@++++:+*=#@WWWW@#=========######@@@@@@@@##@@@@==*============")
+		fmt.Println("@@@@@#@@@@@@@@@WW@W=+++::=+*#@WWWW@==========####===####@@@@@@@@=*********======")
+		fmt.Println("@@@@@#@@@@@@@#@WWW@=:::::=*+=@WWWW#========#####===***=##@@#@@@@=************==")
+		fmt.Println("@@@@@#@@@@@@##@WWWW=++::*##=#@WW@@@@@@W@@=*=###==**+++=##@#@@WW#**************=")
+		fmt.Println("@@@@@@@@@@@@@##@@WWW@*+++**=##WW@@@@@@@WWWW@**@=*+**+:#**####@W#****************")
+		fmt.Println("@@@@@@@@@@@#####@@W@#:**++*###WW@@@#@@@WWWWW@*==::::::=*++=##@@*****************")
+		fmt.Println("@@@@@@@@@@#*:---*@=:-::+=#####=W#***=****#@WW=***+::+*#=+*#@@=******************")
+		fmt.Println("#@@@@@@+------------+++*=###=*@=++:::++*@@WW#****++**====#@W@#*+**+++*+++++++++")
+		fmt.Println("##@@@@@+------------=#++**=#+:*=+++:+*#@@@@@=@@@@=*+:+*###@W#@@*+******+***++++")
+		fmt.Println("##@@@@W#-----------:@WW@*:+*=-:*===**#====@@#@@#@@@*=====#@#=W@==#@@@@@###***++")
+		fmt.Println("#@@@@W@@+--------*@WWWWW=+*=W#-+++++==++*#@@@@@@WW@#++#WW@+#W@**::=@W@@#====#*+")
+		fmt.Println("@@@@WWW@=--------*@WWWW@#===@WW@**+*#@**=##@WWW@W@#@=+*##*@WW#***=@WW#==**###@=")
+		fmt.Println("@@@WWWW@@--------*@@WWWWW**#WWW#-*@###@@###@@WWWW@#@=*@@@@@@W#@=#@@@=*=##=###@@")
+		fmt.Println("@WWWWWW@@--------*@@WWWW@=*=@W@@+***++*=@##@@@W@=@@@*@@@@@@#@##==**+*==##==##@@")
+		fmt.Println("@@WWWWWW#--::----=W@@WWWW#**+*W@+++=###==##@@W@=:::+*#@@@#@#@#=*+::::+**==##@@#")
+		fmt.Println("@@@WWWWW+------:-#WWWWW#*++++=@@*++++####@W@#W@++::::+*#=@@@@W#@=#@@@=*=##=###@@")
+		fmt.Println("@@@#**=@@:-------@WWW#+++++++=W@=+++++*##=++@W@+:::::+*=@@@@W#@@*+******+***+++")
+		fmt.Println("=@#====@@*-------#WW#++::++++@WWWW#=====#@WWWW@=++:++++=#WWWW@@@#*+++*=#=*==#@#")
+		fmt.Println("#@#==#@@@*-------=WW#++++++==@WWWWWWWWWWWWWWWWW@=+++:++=#WWWW@*:*=++***=====#@#")
+		fmt.Println("@#=*=@@@@*-------#WW#++++++==@WWWWWWWWWWWWWWWWWWW+:::++*=@WW*::::::**+++===#@=#")
+		fmt.Println("=@#=***=@#.-----#WWW@+++++*#@WWWWWWWWWWWWWWWWWWWWW+:::++*=@WW*::::::=####==#@===")
+		fmt.Println("@@#=***=@@=------=WWW=+++++*=WWWWWWWWWWWWWWWWWWWWW+:::++*=@WW*::::::+@WW@W@#=#**")
+		fmt.Println("=@#=***=@@=------=WWW=+++++*=WWWWWWWWWWWWWWWWWWWWW+:::++*=@WW*::::::+@WW@W@#=#**")
+		fmt.Println("=@#=***=@@=------=WWW=+++++*=WWWWWWWWWWWWWWWWWWWWW+:::++*=@WW*::::::+@WW@W@#=#**")
 
-func AttaqueMonstre(p *Personnage, m *Monstre) {
-	r := 0
-	// Logique d'attaque du monstre
-	if r <= 3 {
-		p.PointsVieActuels = p.PointsVieActuels - m.PointAttact
-		fmt.Printf("%s attaque %s et lui inflige %d points de dégâts.\n", m.Nom, p.Nom, m.PointAttact)
-		r++
-	}
-
-	fmt.Printf("%s attaque %s et lui inflige %d points de dégâts.\n", m.Nom, p.Nom, m.PointAttact)
-	if r >= 3 {
-		m.PointAttact = m.PointAttact * 2
-		ClearConsole()
-		fmt.Printf("%s attaque %s et lui inflige maintent %d points de dégâts.\n", m.Nom, p.Nom, m.PointAttact)
-		time.Sleep(1000000)
-		ClearConsole()
-	}
-	if r >= 6 {
-		m.PointAttact = m.PointAttact * 3
-		fmt.Printf("%s attaque %s et lui inflige maintent maintent %d points de dégâts.\n", m.Nom, p.Nom, m.PointAttact)
+	case 0:
+		return
 	}
 }

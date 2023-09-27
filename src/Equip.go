@@ -33,10 +33,13 @@ func Equipe(p *Personnage) {
 		switch choix {
 		case 1:
 			equiperArmure(p, "Chapeau de l'aventurier", 10)
+			BonusHp(p)
 		case 2:
 			equiperArmure(p, "Tunique de l'aventurier", 25)
+			BonusHp(p)
 		case 3:
 			equiperArmure(p, "Bottes de l'aventurier", 15)
+			BonusHp(p)
 		case 0:
 			// Retour au menu précédent
 		default:
@@ -52,11 +55,14 @@ func Equipe(p *Personnage) {
 		fmt.Scanln(&choix)
 		switch choix {
 		case 1:
-			desequiperArmure(p, "Chapeau de l'aventurier", -10)
+			DesequiperArmure(p, "Chapeau de l'aventurier", -10)
+			BonusHeadEmpty(p)
 		case 2:
-			desequiperArmure(p, "Tunique de l'aventurier", -25)
+			DesequiperArmure(p, "Tunique de l'aventurier", -25)
+			BonusBodyEmpty(p)
 		case 3:
-			desequiperArmure(p, "Bottes de l'aventurier", -15)
+			DesequiperArmure(p, "Bottes de l'aventurier", -15)
+			BonusShoeEmpty(p)
 		case 0:
 			return
 		default:
@@ -85,12 +91,15 @@ func equiperArmure(personnage *Personnage, armure string, bonusPV int) {
 		case "Casque":
 			personnage.Equipement.Head = armure
 			personnage.Equipement.HeadBonus = bonusPV
+			personnage.Equipement.HeadDura += 50
 		case "Tunique":
 			personnage.Equipement.Body = armure
 			personnage.Equipement.BodyBonus = bonusPV
+			personnage.Equipement.BodyDura += 80
 		case "Bottes":
 			personnage.Equipement.Shoe = armure
 			personnage.Equipement.ShoeBonus = bonusPV
+			personnage.Equipement.ShoeDura += 30
 		}
 		fmt.Printf("Vous avez équipé %s (+%d PV max).\n", armure, bonusPV)
 	} else {
@@ -98,7 +107,7 @@ func equiperArmure(personnage *Personnage, armure string, bonusPV int) {
 	}
 }
 
-func desequiperArmure(personnage *Personnage, armure string, bonusPV int) {
+func DesequiperArmure(personnage *Personnage, armure string, bonusPV int) {
 	var equip string
 
 	switch armure {
@@ -127,4 +136,56 @@ func desequiperArmure(personnage *Personnage, armure string, bonusPV int) {
 	} else {
 		fmt.Printf("Vous n'avez pas équipé de %s.\n", armure)
 	}
+}
+
+func BonusHp(p *Personnage) {
+	if !(p.Equipement.Head == "" && p.Equipement.HeadDura > 0) {
+		p.PointsVieMax += 10 //
+	} else if p.Equipement.Head == "" && p.Equipement.HeadDura <= 0 {
+		p.PointsVieMax += 100 //
+	}
+	if !(p.Equipement.Body == "" && p.Equipement.BodyDura > 0) {
+		p.PointsVieMax += 25 //
+	} else if p.Equipement.Body == "" && p.Equipement.BodyDura <= 0 {
+		p.PointsVieMax += 100 //
+	}
+	if !(p.Equipement.Shoe == "" && p.Equipement.ShoeDura > 0) {
+		p.PointsVieMax += 15 //
+	} else if p.Equipement.Shoe == "" && p.Equipement.ShoeDura <= 0 {
+		p.PointsVieMax += 100 //
+	}
+}
+
+func BonusHeadEmpty(p *Personnage) {
+	p.PointsVieMax -= 10 //
+}
+
+func BonusBodyEmpty(p *Personnage) {
+	p.PointsVieMax -= 25 //
+
+}
+
+func BonusShoeEmpty(p *Personnage) {
+	p.PointsVieMax -= 15 //
+
+}
+
+func Gemme(p *Personnage) {
+	var gemme int
+	fmt.Println("Gemme actuel : Réparation (Va réparer vos equipements par 50.0")
+	fmt.Println("1- Réparation")
+	fmt.Println("0- Retour")
+	fmt.Print("Votre choix : ")
+	fmt.Scanln(&gemme)
+	switch gemme {
+	case 1:
+		p.Equipement.HeadDura += 50
+		p.Equipement.BodyDura += 50
+		p.Equipement.ShoeDura += 50
+	case 0:
+		return
+	default:
+		fmt.Println("Option invalide.")
+	}
+
 }
