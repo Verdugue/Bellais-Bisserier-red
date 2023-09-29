@@ -106,11 +106,11 @@ func CharCreation() *Personnage {
 	ClearConsole()
 	// Demander la classe de l'utilisateur et initialiser les points de vie en conséquence
 	for {
-		fmt.Print("Choisissez une classe : ")
-		fmt.Print("\n Humain : La classe Humain vous octroie 100 Points de vie maximum en partant de 40")
-		fmt.Print("\n Elfe :  La classe Elfe vous octroie 80 Points de vie maximum en partant de 40")
-		fmt.Print("\n Nain :  La classe Nain vous octroie 120 Points de vie maximum en partant de 60")
-		fmt.Print("\nVotre choix : ")
+		fmt.Println("Choisissez une classe : ")
+		fmt.Println("\n Humain :\n La classe Humain vous octroie 100 Points de vie maximum en part de 40")
+		fmt.Println("\n Elfe : \n La classe Elfe vous octroie 80 Points de vie maximum en partant de 40")
+		fmt.Println("\n Nain :\n  La classe Nain vous octroie 120 Points de vie maximum en partant de 60")
+		fmt.Println("\nVotre choix : ")
 		fmt.Scanln(&classe)
 		switch classe {
 		case "Humain":

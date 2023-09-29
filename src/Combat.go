@@ -57,8 +57,14 @@ func CombatTourParTour(p *Personnage, m *Monstre) {
 			AttaquePersonnage(p, m)
 
 			if m.PvActuel <= 0 {
-				fmt.Printf("%s a été vaincu !\n", m.Nom)
-				fmt.Println("\nBRAVO ! Vous avez vaincu l'ennemi !")
+				fmt.Print("__ __ __      # ________     # ___   __      #\n")
+				fmt.Print("/_//_//_/\\    #/_______/\\   #/__/\\ /__/\\    #\n")
+				fmt.Print("\\:\\:\\:\\ \\    #\\__.::._\\/    #\\::\\_\\  \\ \\   #\n")
+				fmt.Print(" \\:\\:\\:\\ \\   #   \\::\\ \\     # \\:. `-\\  \\ \\  #\n")
+				fmt.Print("  \\:\\:\\:\\ \\  #   _\\::\\ \\__  #  \\:. _    \\ \\ #\n")
+				fmt.Print("   \\:\\:\\:\\ \\ #  /__\\::\\__/\\ #   \\. \\`-\\  \\ \\#\n")
+				fmt.Print("    \\_______\\/ # \\________\\/ #   \\__\\/ \\__\\/#\n")
+				fmt.Printf("\nBRAVO ! Vous avez vaincu %s !", m.Nom)
 				break
 			}
 
@@ -69,18 +75,19 @@ func CombatTourParTour(p *Personnage, m *Monstre) {
 			}
 
 			if m.PvActuel <= 0 {
+				ClearConsole()
+				fmt.Print("__ __ __      # ________     # ___   __      #\n")
+				fmt.Print("/_//_//_/\\    #/_______/\\   #/__/\\ /__/\\    #\n")
+				fmt.Print("\\:\\:\\:\\ \\    #\\__.::._\\/    #\\::\\_\\  \\ \\   #\n")
+				fmt.Print(" \\:\\:\\:\\ \\   #   \\::\\ \\     # \\:. `-\\  \\ \\  #\n")
+				fmt.Print("  \\:\\:\\:\\ \\  #   _\\::\\ \\__  #  \\:. _    \\ \\ #\n")
+				fmt.Print("   \\:\\:\\:\\ \\ #  /__\\::\\__/\\ #   \\. \\`-\\  \\ \\#\n")
+				fmt.Print("    \\_______\\/ #  \\________\\/ #   \\__\\/ \\__\\/#\n")
 				fmt.Printf("%s a été vaincu !\n", m.Nom)
 				p.Xp = p.Xp + 5
-				fmt.Println("__ __ __      # ________     # ___   __      #")
-				fmt.Println("/_//_//_/\\    #/_______/\\   #/__/\\ /__/\\    #")
-				fmt.Println("\\:\\:\\:\\ \\    #\\__.::._\\/    #\\::\\_\\  \\ \\   #")
-				fmt.Println(" \\:\\:\\:\\ \\   #   \\::\\ \\     # \\:. `-\\  \\ \\  #")
-				fmt.Println("  \\:\\:\\:\\ \\  #   _\\::\\ \\__  #  \\:. _    \\ \\ #")
-				fmt.Println("   \\:\\:\\:\\ \\ #  /__\\::\\__/\\ #   \\. \\`-\\  \\ \\#")
-				fmt.Println("    \\_______\\/ #  \\________\\/ #    \\__\\/ \\__\\/#")
 				LevelUp(p)
 				Jardin(p, m)
-				break
+				return
 			}
 		case 2:
 			FightInventory(p)

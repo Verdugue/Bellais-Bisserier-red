@@ -33,22 +33,25 @@ func Equipe(p *Personnage) {
 		switch choix {
 		case 1:
 			if p.Inventaire["Chapeau de l'aventurier"] > 0 {
-				equiperArmure(p, "Chapeau de l'aventurier", 10)
+				p.Equipement.Head = "Chapeau de l'aventurier"
 				BonusHp(p)
+				p.Equipement.HeadDura += 50
 			} else {
 				fmt.Print("Vous n'avez pas de chapeau de l'aventurier\n")
 			}
 		case 2:
 			if p.Inventaire["Tunique de l'aventurier"] > 0 {
-				equiperArmure(p, "Tunique de l'aventurier", 25)
+				p.Equipement.Body = "Tunique de l'aventurier"
 				BonusHp(p)
+				p.Equipement.BodyDura += 50
 			} else {
 				fmt.Print("Vous n'avez pas de tunique de l'aventurier\n")
 			}
 		case 3:
 			if p.Inventaire["Bottes de l'aventurier"] > 0 {
-				equiperArmure(p, "Bottes de l'aventurier", 15)
+				p.Equipement.Shoe = "Bottes de l'aventurier"
 				BonusHp(p)
+				p.Equipement.ShoeDura += 50
 			} else {
 				fmt.Print("Vous n'avez pas de bottes de l'aventurier\n")
 			}
@@ -92,42 +95,6 @@ func Equipe(p *Personnage) {
 		default:
 			fmt.Println("Option invalide.")
 		}
-	}
-}
-
-// Fonction pour équiper une armure
-func equiperArmure(p *Personnage, armure string, bonusPV int) {
-	// Vérifier si le personnage a déjà cette armure équipée
-	var equip string
-
-	switch armure {
-	case "Casque":
-		p.Equipement.Head = "Chapeau de l'aventurier"
-	case "Tunique":
-		equip = p.Equipement.Body
-	case "Bottes":
-		equip = p.Equipement.Shoe
-	}
-
-	if equip == "" {
-		// Équiper l'armure et ajouter le bonus de PV
-		switch armure {
-		case "Casque":
-			p.Equipement.Head = armure
-			p.Equipement.HeadBonus = bonusPV
-			p.Equipement.HeadDura += 50
-		case "Tunique":
-			p.Equipement.Body = armure
-			p.Equipement.BodyBonus = bonusPV
-			p.Equipement.BodyDura += 80
-		case "Bottes":
-			p.Equipement.Shoe = armure
-			p.Equipement.ShoeBonus = bonusPV
-			p.Equipement.ShoeDura += 30
-		}
-		fmt.Printf("Vous avez équipé %s (+%d PV max).\n", armure, bonusPV)
-	} else {
-		fmt.Printf("Vous avez déjà équipé %s.\n", armure)
 	}
 }
 

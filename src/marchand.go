@@ -15,6 +15,7 @@ func MarchandMenu(p *Personnage) {
 	GemmedeReparation := 1
 
 	for {
+		ClearConsole()
 		fmt.Println(".___  ___.      ___      .______        ______  __    __       ___      .__   __.  _______")
 		fmt.Println("|   \\/   |     /   \\     |   _  \\      /      ||  |  |  |     /   \\     |  \\ |  | |       \\")
 		fmt.Println("|  \\  /  |    /  ^  \\    |  |_)  |    |  ,----'|  |__|  |    /  ^  \\    |   \\|  | |  .--.  |")
@@ -26,7 +27,6 @@ func MarchandMenu(p *Personnage) {
 		fmt.Println("Menu du marchand :")
 		fmt.Println("1. Voulez-vous acheter des items.")
 		fmt.Println("2. Voulez-vous vendre des items.")
-		fmt.Println("3. Quitter.")
 		fmt.Println("0. Quitter")
 		var voa int
 		fmt.Print("Votre choix : ")
