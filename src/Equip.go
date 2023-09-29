@@ -113,17 +113,17 @@ func equiperArmure(p *Personnage, armure string, bonusPV int) {
 		// Équiper l'armure et ajouter le bonus de PV
 		switch armure {
 		case "Casque":
-			personnage.Equipement.Head = armure
-			personnage.Equipement.HeadBonus = bonusPV
-			personnage.Equipement.HeadDura += 50
+			p.Equipement.Head = armure
+			p.Equipement.HeadBonus = bonusPV
+			p.Equipement.HeadDura += 50
 		case "Tunique":
-			personnage.Equipement.Body = armure
-			personnage.Equipement.BodyBonus = bonusPV
-			personnage.Equipement.BodyDura += 80
+			p.Equipement.Body = armure
+			p.Equipement.BodyBonus = bonusPV
+			p.Equipement.BodyDura += 80
 		case "Bottes":
-			personnage.Equipement.Shoe = armure
-			personnage.Equipement.ShoeBonus = bonusPV
-			personnage.Equipement.ShoeDura += 30
+			p.Equipement.Shoe = armure
+			p.Equipement.ShoeBonus = bonusPV
+			p.Equipement.ShoeDura += 30
 		}
 		fmt.Printf("Vous avez équipé %s (+%d PV max).\n", armure, bonusPV)
 	} else {
