@@ -4,10 +4,17 @@ import "fmt"
 
 func Forgeron(p *Personnage) {
 	var demo int
+	fmt.Println(" _______   ______   .______        _______  _______ .______        ______   .__   __.")
+	fmt.Println("|   ____| /  __  \\  |   _  \\      /  _____||   ____||   _  \\      /  __  \\  |  \\ |  |")
+	fmt.Println("|  |__   |  |  |  | |  |_)  |    |  |  __  |  |__   |  |_)  |    |  |  |  | |   \\|  |")
+	fmt.Println("|   __|  |  |  |  | |      /     |  | |_ | |   __|  |      /     |  |  |  | |  . `  |")
+	fmt.Println("|  |     |  `--'  | |  |\\  \\----.|  |__| | |  |____ |  |\\  \\----.|  `--'  | |  |\\   |")
+	fmt.Println("|__|      \\______/  | _| `._____| \\______| |_______|| _| `._____| \\______/  |__| \\__|")
+
 	fmt.Println("\nMenu du Forgeron:")
 	fmt.Println("1. Souhaitez-vous forger un équipement ? ")
 	fmt.Println("2. Recycler un équipement? ")
-	fmt.Println("3. Quitter. ")
+	fmt.Println("0. Quitter. ")
 	fmt.Scanln(&demo)
 	switch demo {
 	case 1:

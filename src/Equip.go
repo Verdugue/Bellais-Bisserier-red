@@ -8,7 +8,7 @@ func Equipe(p *Personnage) {
 	var choix int
 
 	fmt.Println("Équipement actuel :")
-	fmt.Printf("1- Chapeau de l'aventurier: %s\n", p.Equipement.Head)
+	fmt.Printf("1- Chapeau de l'aventurier : %s\n", p.Equipement.Head)
 	fmt.Printf("2- Tunique de l'aventurier : %s\n", p.Equipement.Body)
 	fmt.Printf("3- Bottes de l'aventurier : %s\n", p.Equipement.Shoe)
 	fmt.Print("\n")
@@ -32,14 +32,26 @@ func Equipe(p *Personnage) {
 
 		switch choix {
 		case 1:
-			equiperArmure(p, "Chapeau de l'aventurier", 10)
-			BonusHp(p)
+			if p.Inventaire["Chapeau de l'aventurier"] > 0 {
+				equiperArmure(p, "Chapeau de l'aventurier", 10)
+				BonusHp(p)
+			} else {
+				fmt.Print("Vous n'avez pas de chapeau de l'aventurier\n")
+			}
 		case 2:
-			equiperArmure(p, "Tunique de l'aventurier", 25)
-			BonusHp(p)
+			if p.Inventaire["Tunique de l'aventurier"] > 0 {
+				equiperArmure(p, "Tunique de l'aventurier", 25)
+				BonusHp(p)
+			} else {
+				fmt.Print("Vous n'avez pas de tunique de l'aventurier\n")
+			}
 		case 3:
-			equiperArmure(p, "Bottes de l'aventurier", 15)
-			BonusHp(p)
+			if p.Inventaire["Bottes de l'aventurier"] > 0 {
+				equiperArmure(p, "Bottes de l'aventurier", 15)
+				BonusHp(p)
+			} else {
+				fmt.Print("Vous n'avez pas de bottes de l'aventurier\n")
+			}
 		case 0:
 			// Retour au menu précédent
 		default:
@@ -55,14 +67,26 @@ func Equipe(p *Personnage) {
 		fmt.Scanln(&choix)
 		switch choix {
 		case 1:
-			DesequiperArmure(p, "Chapeau de l'aventurier", -10)
-			BonusHeadEmpty(p)
+			if p.Equipement.Head != "" {
+				DesequiperArmure(p, "Chapeau de l'aventurier", -10)
+				BonusHeadEmpty(p)
+			} else {
+				fmt.Print("Vous n'avez pas de chapeau de l'aventurier d'equiper\n")
+			}
 		case 2:
-			DesequiperArmure(p, "Tunique de l'aventurier", -25)
-			BonusBodyEmpty(p)
+			if p.Equipement.Body != "" {
+				DesequiperArmure(p, "Tunique de l'aventurier", -25)
+				BonusBodyEmpty(p)
+			} else {
+				fmt.Print("Vous n'avez pas de tunique de l'aventurier d'equiper\n")
+			}
 		case 3:
-			DesequiperArmure(p, "Bottes de l'aventurier", -15)
-			BonusShoeEmpty(p)
+			if p.Equipement.Shoe != "" {
+				DesequiperArmure(p, "Bottes de l'aventurier", -15)
+				BonusShoeEmpty(p)
+			} else {
+				fmt.Print("Vous n'avez pas de bottes de l'aventurier d'equiper\n")
+			}
 		case 0:
 			return
 		default:
@@ -72,17 +96,17 @@ func Equipe(p *Personnage) {
 }
 
 // Fonction pour équiper une armure
-func equiperArmure(personnage *Personnage, armure string, bonusPV int) {
+func equiperArmure(p *Personnage, armure string, bonusPV int) {
 	// Vérifier si le personnage a déjà cette armure équipée
 	var equip string
 
 	switch armure {
 	case "Casque":
-		equip = personnage.Equipement.Head
+		p.Equipement.Head = "Chapeau de l'aventurier"
 	case "Tunique":
-		equip = personnage.Equipement.Body
+		equip = p.Equipement.Body
 	case "Bottes":
-		equip = personnage.Equipement.Shoe
+		equip = p.Equipement.Shoe
 	}
 
 	if equip == "" {

@@ -5,11 +5,15 @@ import (
 	"math/rand"
 )
 
-var tours int
-
 func ChoisirAdversaire(p *Personnage) {
+	fmt.Println("  ______   ______   .___  ___. .______        ___      .___________.")
+	fmt.Println(" /      | /  __  \\  |   \\/   | |   _  \\      /   \\     |           |")
+	fmt.Println("|  ,----'|  |  |  | |  \\  /  | |  |_)  |    /  ^  \\    `---|  |----`")
+	fmt.Println("|  |     |  |  |  | |  |\\/|  | |   _  <    /  /_\\  \\       |  |")
+	fmt.Println("|  `----.|  `--'  | |  |  |  | |  |_)  |  /  _____  \\      |  |")
+	fmt.Println(" \\______| \\______/  |__|  |__| |______/  /__/     \\__\\     |__|")
 	var choix int
-	fmt.Println("Choisissez un adversaire :")
+	fmt.Println("\nChoisissez un adversaire :")
 	fmt.Println("1. Gobelin")
 	fmt.Println("2. Orc")
 	fmt.Println("3. Dragon")
@@ -33,57 +37,53 @@ func ChoisirAdversaire(p *Personnage) {
 }
 
 func CombatTourParTour(p *Personnage, m *Monstre) {
-	nbtours := &tours
+	nbtours := 0
 	for p.PointsVieActuels > 0 && m.PvActuel > 0 {
-		fmt.Printf("Tour %d du combat :\n", nbtours)
+		fmt.Printf("Tour %d du combat :\n", nbtours+1)
 		fmt.Printf("%s (%s, Niveau %d) - PV: %d / %d\n", p.Nom, p.Classe, p.Niveau, p.PointsVieActuels, p.PointsVieMax)
-		fmt.Printf("Vous avez encore %d mana", p.Mana)
-		fmt.Printf("%s - PV: %d / %d\n", m.Nom, m.PvActuel, m.PvMaximum)
+		fmt.Printf("\nVous avez encore %d mana", p.Mana)
+		fmt.Printf("\n%s - PV: %d / %d\n", m.Nom, m.PvActuel, m.PvMaximum)
 		fmt.Println("\nVous vous battez contre :", m.Nom)
 		fmt.Println("\nMenu de combat:")
 		fmt.Println("\n1. Attaquer")
 		fmt.Println("\n2. Acceder a l'inventaire")
-		fmt.Println("\n3. Quitter")
-		var cicilafamille int
+		fmt.Println("\n0. Quitter")
+		var combat int
 		fmt.Print("Votre choix : ")
-		fmt.Scanln(&cicilafamille)
+		fmt.Scanln(&combat)
 
-		switch cicilafamille {
+		switch combat {
 		case 1:
-			if p.Initiative > m.Initiative {
-				AttaquePersonnage(p, m)
+			AttaquePersonnage(p, m)
 
-				if m.PvActuel <= 0 {
-					fmt.Printf("%s a été vaincu !\n", m.Nom)
-					break
-				}
+			if m.PvActuel <= 0 {
+				fmt.Printf("%s a été vaincu !\n", m.Nom)
+				fmt.Println("\nBRAVO ! Vous avez vaincu l'ennemi !")
+				break
+			}
 
-				AttaqueMonstre(p, m)
-				if p.PointsVieActuels <= 0 {
-					fmt.Printf("%s a été vaincu !\n", p.Nom)
-					fmt.Println("\nBRAVO ! Vous avez vaincu l'ennemi !")
-					return
-				}
-			} else if m.Initiative < p.Initiative {
-				AttaqueMonstre(p, m)
+			AttaqueMonstre(p, m)
+			CheckDura(p)
+			if p.PointsVieActuels <= 0 {
+				return
+			}
 
-				if p.PointsVieActuels <= 0 {
-					fmt.Printf("%s a été vaincu !\n", p.Nom)
-					fmt.Println("\nBRAVO ! Vous avez vaincu l'ennemi !")
-					p.Xp = p.Xp + m.Xp
-					return
-				}
-				AttaquePersonnage(p, m)
-
-				if m.PvActuel <= 0 {
-					fmt.Printf("%s a été vaincu !\n", m.Nom)
-					p.Niveau = p.Niveau + m.Xp
-					LevelUp(p)
-					break
-				}
+			if m.PvActuel <= 0 {
+				fmt.Printf("%s a été vaincu !\n", m.Nom)
+				p.Xp = p.Xp + 5
+				fmt.Println("__ __ __      # ________     # ___   __      #")
+				fmt.Println("/_//_//_/\\    #/_______/\\   #/__/\\ /__/\\    #")
+				fmt.Println("\\:\\:\\:\\ \\    #\\__.::._\\/    #\\::\\_\\  \\ \\   #")
+				fmt.Println(" \\:\\:\\:\\ \\   #   \\::\\ \\     # \\:. `-\\  \\ \\  #")
+				fmt.Println("  \\:\\:\\:\\ \\  #   _\\::\\ \\__  #  \\:. _    \\ \\ #")
+				fmt.Println("   \\:\\:\\:\\ \\ #  /__\\::\\__/\\ #   \\. \\`-\\  \\ \\#")
+				fmt.Println("    \\_______\\/ #  \\________\\/ #    \\__\\/ \\__\\/#")
+				LevelUp(p)
+				Jardin(p, m)
+				break
 			}
 		case 2:
-			AccessInventory(p)
+			FightInventory(p)
 
 		case 0:
 			return
@@ -100,46 +100,15 @@ func AttaqueMonstre(p *Personnage, m *Monstre) {
 	r := 0
 	// Logique d'attaque du monstre
 	if r <= 3 {
-		attaque := rand.Intn(3) + 1
-		// Vérifie où le monstre a touché
-		switch attaque {
-		case 1:
-			if !(p.Equipement.Head == "") {
-				fmt.Println("Le monstre vous a touché à la tête !")
-				p.PointsVieActuels = p.PointsVieActuels - m.PointAttact
-				fmt.Printf("%s attaque %s et lui inflige %d points de dégâts.\n", m.Nom, p.Nom, m.PointAttact)
-				r++
-				p.Equipement.HeadDura -= m.PointAttact
-				CheckDura(p)
-				BonusHp(p)
-			}
-		case 2:
-			if !(p.Equipement.Body == "") {
-				fmt.Println("Le monstre vous a touché à la tête !")
-				p.PointsVieActuels = p.PointsVieActuels - m.PointAttact
-				fmt.Printf("%s attaque %s et lui inflige %d points de dégâts.\n", m.Nom, p.Nom, m.PointAttact)
-				r++
-				p.Equipement.BodyDura -= m.PointAttact
-				CheckDura(p)
-				BonusHp(p)
-			}
-		case 3:
-			if !(p.Equipement.Shoe == "") {
-				fmt.Println("Le monstre vous a touché à la tête !")
-				p.PointsVieActuels = p.PointsVieActuels - m.PointAttact
-				fmt.Printf("%s attaque %s et lui inflige %d points de dégâts.\n", m.Nom, p.Nom, m.PointAttact)
-				r++
-				p.Equipement.ShoeDura -= m.PointAttact
-				CheckDura(p)
-				BonusHp(p)
-			}
-		}
+		fmt.Printf("\n%s vous attaque et inflige %d points de dégâts\n", m.Nom, m.PointAttact)
+		p.PointsVieActuels = p.PointsVieActuels - m.PointAttact
+		r++
 	}
-
 	if r >= 3 {
 		ClearConsole()
 		m.PointAttact = m.PointAttact * 2
 		attaque := rand.Intn(3) + 1
+		r++
 		// Vérifie où le monstre a touché
 		switch attaque {
 		case 1:
@@ -184,6 +153,16 @@ func AttaqueMonstre(p *Personnage, m *Monstre) {
 	}
 }
 
+func Poingdefer(p *Personnage, m *Monstre) {
+	if p.Mana >= 0 {
+		m.PvActuel -= 6
+		p.Mana -= 5
+		fmt.Println("\nVous avez utiliser 5 mana")
+	} else {
+		fmt.Println("\nVous n'avez pas assez de mana")
+	}
+}
+
 func CheckDura(p *Personnage) {
 	if p.Equipement.HeadDura <= 0 {
 		BonusHp(p)
@@ -193,12 +172,12 @@ func CheckDura(p *Personnage) {
 	if p.Equipement.BodyDura <= 0 {
 		BonusHp(p)
 	} else if p.Equipement.BodyDura > 0 {
-		fmt.Printf("\nIl reste %d de durabilité a votre casque", p.Equipement.BodyDura)
+		fmt.Printf("\nIl reste %d de durabilité a votre Tunique", p.Equipement.BodyDura)
 	}
 	if p.Equipement.ShoeDura <= 0 {
 		BonusHp(p)
 	} else if p.Equipement.ShoeDura > 0 {
-		fmt.Printf("\nIl reste %d de durabilité a votre casque", p.Equipement.ShoeDura)
+		fmt.Printf("\nIl reste %d de durabilité a vos Bottes", p.Equipement.ShoeDura)
 	}
 }
 
@@ -222,11 +201,61 @@ func BouleDeFeu(p *Personnage, m *Monstre) {
 	}
 }
 
+func Tirperforant(p *Personnage, m *Monstre) {
+	if p.Mana >= 0 {
+		m.PvActuel -= 20
+		p.Mana -= 10
+		fmt.Println("\nVous avez utiliser 10 mana")
+	} else {
+		fmt.Println("\nVous n'avez pas assez de mana")
+	}
+}
+
+func Lancerdehache(p *Personnage, m *Monstre) {
+	if p.Mana >= 0 {
+		m.PvActuel -= 20
+		p.Mana -= 10
+		fmt.Println("\nVous avez utiliser 10 mana")
+	} else {
+		fmt.Println("\nVous n'avez pas assez de mana")
+	}
+}
+
+func Marteaudejustice(p *Personnage, m *Monstre) {
+	if p.Mana >= 0 {
+		m.PvActuel -= 20
+		p.Mana -= 10
+		fmt.Println("\nVous avez utiliser 10 mana")
+	} else {
+		fmt.Println("\nVous n'avez pas assez de mana")
+	}
+}
+
 func AttaquePersonnage(p *Personnage, m *Monstre) {
 	var Atak int
 	fmt.Println("\nMenu d'attaque:")
-	fmt.Println("1. Coup de poing")
-	fmt.Println("2. Boule de Feu")
+	fmt.Println("\n1. Coup de poing")
+	fmt.Println("\n2. Boule de Feu")
+	if p.Inventaire["Poing de fer"] > 0 {
+		fmt.Println("\n3. Poing de fer")
+	} else {
+		fmt.Println("\n3. Poing de fer (Indisponible -> lvl 5) ")
+	}
+	if p.Inventaire["Tir perforant"] > 0 {
+		fmt.Println("\n4. Tir perforant")
+	} else {
+		fmt.Println("\n4. Tir perforant (Indisponible -> lvl 10) ")
+	}
+	if p.Inventaire["Lancer de hache"] > 0 {
+		fmt.Println("\n5. Lancer de hache")
+	} else {
+		fmt.Println("\n5. Lancer de hache (Indisponible -> lvl 15) ")
+	}
+	if p.Inventaire["Marteau de justice"] > 0 {
+		fmt.Println("\n6. Marteau de justice")
+	} else {
+		fmt.Println("\n6. Marteaudejustice (Indisponible -> lvl 20) ")
+	}
 	fmt.Print("Votre choix : ")
 	fmt.Scanln(&Atak)
 
@@ -236,7 +265,29 @@ func AttaquePersonnage(p *Personnage, m *Monstre) {
 	case 2:
 		BouleDeFeu(p, m)
 	case 3:
-		PoisonPot(p, m)
+		if p.Inventaire["Poing de fer"] > 0 {
+			Poingdefer(p, m)
+		} else {
+			return
+		}
+	case 4:
+		if p.Inventaire["Tir perforant"] > 0 {
+			Tirperforant(p, m)
+		} else {
+			return
+		}
+	case 5:
+		if p.Inventaire["Lanceur de hache"] > 0 {
+			Lancerdehache(p, m)
+		} else {
+			return
+		}
+	case 6:
+		if p.Inventaire["Marteau de justice"] > 0 {
+			Marteaudejustice(p, m)
+		} else {
+			return
+		}
 	default:
 		fmt.Println("Attaque invalide.")
 	}
